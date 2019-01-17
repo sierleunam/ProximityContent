@@ -14,14 +14,17 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.estimote.coresdk.common.config.EstimoteSDK.getApplicationContext;
 import static com.estimote.coresdk.observation.region.RegionUtils.computeAccuracy;
+import static com.estimote.proximitycontent.FileUtils.CheckFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
 import static com.estimote.proximitycontent.JsonBeacon.makeJsonObject;
+import static com.estimote.proximitycontent.MyProximityService.stopActionScan;
 
 public class NearestBeaconManager {
 
     private static final String TAG = "NearestBeaconManager";
-
+    private static final String FILE_STOP_SCAN = "stop.scan";
     private static final BeaconRegion ALL_ESTIMOTE_BEACONS = new BeaconRegion("all Estimote beacons", null, null, null);
 
     private List<BeaconID> beaconIDs;
@@ -99,7 +102,7 @@ public class NearestBeaconManager {
                 filteredBeacons.add(beacon);
             }
         }
-        Log.d(TAG, "filterOutBeaconsByIDs: " + filteredBeacons);
+//        Log.d(TAG, "filterOutBeaconsByIDs: " + filteredBeacons);
         return filteredBeacons;
     }
 
@@ -126,8 +129,13 @@ public class NearestBeaconManager {
             }
         }
 
+
         Log.d(TAG, "Nearest beacon: " + nearestBeacon + ", distance: " + nearestBeaconsDistance);
 
+        if (CheckFile(FILE_STOP_SCAN)) {
+            stopActionScan(getApplicationContext());
+
+        }
 
         return nearestBeacon;
     }

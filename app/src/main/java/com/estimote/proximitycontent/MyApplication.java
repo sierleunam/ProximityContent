@@ -44,4 +44,15 @@ public class MyApplication extends Application {
 
 
     }
+
+    /**
+     * This method is for use in emulated process environments.  It will
+     * never be called on a production Android device, where processes are
+     * removed by simply killing them; no user code (including this callback)
+     * is executed when doing so.
+     */
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+    }
 }

@@ -52,6 +52,11 @@ public class FileUtils {
 
     }
 
+    public static boolean CheckFile(String fileName) {
+        File file = getPublicDownloadsStorageFile(fileName);
+        return file.exists();
+    }
+
     private static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);

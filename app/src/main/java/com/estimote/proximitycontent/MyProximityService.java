@@ -19,6 +19,8 @@ import static com.estimote.proximitycontent.MyApplication.proximityContentManage
 
 public class MyProximityService extends Service {
     private static final String TAG = "MyProxmityService";
+    private static final String FILE_STOP_SCAN = "stop.scan";
+    private static final String FILE_START_SCAN = "start.scan";
     private static final String ACTION_START = "com.estimote.proximitycontent.action.START";
     private static final String ACTION_STOP = "com.estimote.proximitycontent.action.STOP";
     private BroadcastReceiver yourReceiver;
@@ -64,11 +66,10 @@ public class MyProximityService extends Service {
     public static void stopActionScan(Context context) {
         proximityContentManager.stopContentUpdates();
 
-        try {
             DeleteFile(FileUtils.filename);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        DeleteFile(FILE_START_SCAN);
+        DeleteFile(FILE_STOP_SCAN);
+
         Log.d(TAG, "stopActionScan() called with: context = [" + context + "]");
     }
 
@@ -111,6 +112,7 @@ public class MyProximityService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         this.unregisterReceiver(this.yourReceiver);
     }
 

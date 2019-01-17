@@ -15,6 +15,7 @@ import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.estimote.proximitycontent.FileUtils.CheckFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
 import static com.estimote.proximitycontent.MyProximityService.startActionScan;
 import static com.estimote.proximitycontent.MyProximityService.stopActionScan;
@@ -27,6 +28,8 @@ import static com.estimote.proximitycontent.MyProximityService.stopActionScan;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String FILE_START_SCAN = "start.scan";
+
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     Button btnStart, btnStop, btnSave;
@@ -42,36 +45,22 @@ public class MainActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-
-                // MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
         }
 
-        btnStart=findViewById(R.id.btnStartId);
-        btnStop=findViewById(R.id.btnStopId);
-        btnSave=findViewById(R.id.buttonSaveId);
+        btnStart = findViewById(R.id.btnStartId);
+        btnStop = findViewById(R.id.btnStopId);
+        btnSave = findViewById(R.id.buttonSaveId);
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActionScan(getApplicationContext());
-
             }
         });
 
@@ -97,6 +86,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onClick: JSON File Created");
             }
         });
+
+        if (CheckFile(FILE_START_SCAN))
+            btnStart.callOnClick();
+//            DeleteFile(FILE_START_SCAN);
     }
 
     @Override
