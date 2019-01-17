@@ -1,6 +1,7 @@
 package com.estimote.proximitycontent;
 
 import android.os.Environment;
+import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -12,9 +13,7 @@ import java.io.IOException;
 public class FileUtils {
 
     private static final String TAG = "FileUtils";
-    private static String fileName;
-    private static JSONObject obj;
-
+    public static String filename = "beacon.json";
     public static File getPublicDownloadsStorageFile(String fileName) {
 
         File file = null;
@@ -29,13 +28,13 @@ public class FileUtils {
     }
 
     public static int WriteJsonToFile(String fileName, @NotNull JSONObject obj) {
-        FileUtils.fileName = fileName;
-        FileUtils.obj = obj;
+
         File file = getPublicDownloadsStorageFile(fileName);
         FileWriter fw = null;
         try {
             fw = new FileWriter(file);
             fw.write(obj.toString());
+            Log.d(TAG, "WriteJsonToFile: " + obj.toString());
             fw.flush();
             fw.close();
         } catch (IOException e) {
@@ -61,11 +60,8 @@ public class FileUtils {
     /* Checks if external storage is available to at least read */
     public boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 
 }

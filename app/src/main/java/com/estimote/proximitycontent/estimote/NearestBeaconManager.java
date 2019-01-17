@@ -6,11 +6,17 @@ import android.util.Log;
 import com.estimote.coresdk.observation.region.beacon.BeaconRegion;
 import com.estimote.coresdk.recognition.packets.Beacon;
 import com.estimote.coresdk.service.BeaconManager;
+import com.estimote.proximitycontent.FileUtils;
+import com.estimote.proximitycontent.MyApplication;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.estimote.coresdk.observation.region.RegionUtils.computeAccuracy;
+import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
+import static com.estimote.proximitycontent.JsonBeacon.makeJsonObject;
 
 public class NearestBeaconManager {
 
@@ -105,6 +111,18 @@ public class NearestBeaconManager {
             if (distance > -1 && (distance < nearestBeaconsDistance || nearestBeacon == null)) {
                 nearestBeacon = beacon;
                 nearestBeaconsDistance = distance;
+
+                try {
+                    WriteJsonToFile(
+                            FileUtils.filename,
+                            makeJsonObject(
+                                    MyApplication.beaconName,
+                                    String.valueOf(nearestBeacon.getProximityUUID()),
+                                    nearestBeacon.getMacAddress(),
+                                    nearestBeacon.getRssi(), nearestBeaconsDistance));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
 

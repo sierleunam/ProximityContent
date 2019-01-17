@@ -1,23 +1,22 @@
 package com.estimote.proximitycontent;
 
+import android.annotation.TargetApi;
 import android.app.IntentService;
-import android.content.Intent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.estimote.proximitycontent.estimote.BeaconID;
 import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetails;
-import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetailsFactory;
 import com.estimote.proximitycontent.estimote.ProximityContentManager;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Arrays;
+import java.util.Objects;
 
 import static com.estimote.proximitycontent.FileUtils.DeleteFile;
-import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
+import static com.estimote.proximitycontent.MyApplication.beaconName;
 import static com.estimote.proximitycontent.MyApplication.proximityContentManager;
 
 /**
@@ -30,13 +29,12 @@ import static com.estimote.proximitycontent.MyApplication.proximityContentManage
 public class MyProximityIntentService extends IntentService {
 
     private static final String TAG = "ProxmityIntentService";
-
+    private BroadcastReceiver yourReceiver;
 
     // ODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_START = "com.estimote.proximitycontent.action.START";
     private static final String ACTION_STOP = "com.estimote.proximitycontent.action.STOP";
-    private String filename;
 
     // ODO: Rename parameters
 //    private static final String EXTRA_RANGE = "com.estimote.proximitycontent.extra.RANGE";
@@ -46,7 +44,36 @@ public class MyProximityIntentService extends IntentService {
 
     public MyProximityIntentService() {
         super("MyProximityIntentService");
-        filename = "beacon.json";
+
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        final IntentFilter theFilter = new IntentFilter();
+        theFilter.addAction(ACTION_START);
+        this.yourReceiver = new BroadcastReceiver() {
+            @TargetApi(Build.VERSION_CODES.KITKAT)
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (Objects.requireNonNull(intent.getAction()).equals(ACTION_START))
+                    startActionScan(getApplicationContext());
+                else if (Objects.requireNonNull(intent.getAction()).equals(ACTION_STOP))
+                    stopActionScan(getApplicationContext());
+                Log.d(TAG, "onReceive() called with: context = [" + context + "], intent = [" + intent + "]");
+
+            }
+        };
+        this.registerReceiver(this.yourReceiver, theFilter);
+
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(this.yourReceiver);
     }
 
     @Override
@@ -109,17 +136,12 @@ public class MyProximityIntentService extends IntentService {
                     EstimoteCloudBeaconDetails beaconDetails = (EstimoteCloudBeaconDetails) content;
 
                     text = "You're in " + beaconDetails + "'s range!";
-                    JSONObject json = new JSONObject();
+                    beaconName = beaconDetails.getBeaconName();
 
-                    try {
-                        json.put("name", beaconDetails.getBeaconName());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    WriteJsonToFile(filename,json);
-                    Log.d(TAG, "onContentChanged() returned: " + text);
+
                 } else {
                     text = "No beacons in range.";
+                    beaconName = "UNKNOWN";
                     Log.d(TAG, "onContentChanged() returned: " + text);
                 }
 
@@ -135,7 +157,12 @@ public class MyProximityIntentService extends IntentService {
     private void handleActionStop() {
         // TODO: Handle action Stop
         proximityContentManager.stopContentUpdates();
-        DeleteFile(filename);
+
+        try {
+            DeleteFile(FileUtils.filename);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Log.d(TAG, "handleActionStop() called and File Deleted");
     }
 

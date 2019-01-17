@@ -1,16 +1,12 @@
 package com.estimote.proximitycontent;
 
 import android.app.Application;
-import android.os.Environment;
-import android.util.Log;
 
 import com.estimote.coresdk.common.config.EstimoteSDK;
 import com.estimote.proximitycontent.estimote.BeaconID;
-import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetails;
 import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetailsFactory;
 import com.estimote.proximitycontent.estimote.ProximityContentManager;
 
-import java.io.File;
 import java.util.Arrays;
 
 
@@ -21,6 +17,7 @@ import java.util.Arrays;
 public class MyApplication extends Application {
 
     private static final String TAG = "MyApplication";
+    public static String beaconName = "UNKNOWN";
     static ProximityContentManager proximityContentManager;
     @Override
     public void onCreate() {
@@ -45,7 +42,6 @@ public class MyApplication extends Application {
                                 new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 31722, 6285)),
                         new EstimoteCloudBeaconDetailsFactory());
 
-        File DownloadsPublicDir = Environment.getExternalStoragePublicDirectory("Estimote");
 
     }
 }
