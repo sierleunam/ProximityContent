@@ -27,7 +27,7 @@ public class ProximityContentManagerController {
         proximityContentManager.startContentUpdates();
     }
 
-    static void stopScan() {
+    public static void stopScan() {
         proximityContentManager.stopContentUpdates();
     }
 

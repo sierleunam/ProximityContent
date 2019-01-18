@@ -57,6 +57,16 @@ public class FileUtils {
         return file.exists();
     }
 
+    public static void CreateDummyFile(String fileName) {
+        File file = getPublicDownloadsStorageFile(fileName);
+        try {
+            file.createNewFile();
+            Log.d(TAG, "CreateDummyFile: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);

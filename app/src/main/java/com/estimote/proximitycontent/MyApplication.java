@@ -1,6 +1,7 @@
 package com.estimote.proximitycontent;
 
 import android.app.Application;
+import android.os.Environment;
 
 import com.estimote.coresdk.common.config.EstimoteSDK;
 import com.estimote.proximitycontent.estimote.BeaconID;
@@ -19,6 +20,10 @@ public class MyApplication extends Application {
     private static final String TAG = "MyApplication";
     public static String beaconName = "UNKNOWN";
 
+    public static final String DOWNLOADS_FOLDER = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOWNLOADS).toString();
+    public static final String FILE_START_SCAN = "start.scan";
+    public static final String FILE_STOP_SCAN = "stop.scan";
 
 
     static ProximityContentManager proximityContentManager;

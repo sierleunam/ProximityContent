@@ -3,7 +3,6 @@ package com.estimote.proximitycontent;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.FileObserver;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -17,11 +16,12 @@ import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.estimote.proximitycontent.FileUtils.CreateDummyFile;
 import static com.estimote.proximitycontent.FileUtils.DeleteFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
+import static com.estimote.proximitycontent.MyApplication.DOWNLOADS_FOLDER;
+import static com.estimote.proximitycontent.MyApplication.FILE_START_SCAN;
 import static com.estimote.proximitycontent.MyApplication.proximityContentManager;
-import static com.estimote.proximitycontent.ProximityContentManagerController.startScan;
-import static com.estimote.proximitycontent.ProximityContentManagerController.stopScan;
 
 
 //
@@ -30,13 +30,13 @@ import static com.estimote.proximitycontent.ProximityContentManagerController.st
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-    private static final String FILE_START_SCAN = "start.scan";
-    private static final String FILE_STOP_SCAN = "stop.scan";
+    private static final String TAG = "MainActiviy";
+
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
-    MyFileObserver myFileObserver = null;
+    private static MyFileObserver myFileObserver;
+    private static MyFileObserver myFileObserverDelete;
 
     Button btnStart, btnStop, btnSave;
 
@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startScan();
+//                startScan();
+                CreateDummyFile(FILE_START_SCAN);
 
             }
         });
@@ -77,11 +78,11 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopScan();
+//                stopScan();
 
                 DeleteFile(FileUtils.filename);
                 DeleteFile(FILE_START_SCAN);
-                DeleteFile(FILE_STOP_SCAN);
+
             }
         });
 
@@ -116,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         myFileObserver = new MyFileObserver(
-                Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS).toString(),
-                FileObserver.DELETE);
+                DOWNLOADS_FOLDER,
+                FileObserver.CREATE | FileObserver.DELETE);
+        Log.d(TAG, "onResume: " + DOWNLOADS_FOLDER);
         myFileObserver.startWatching();
-        Log.d(TAG, "onResume() called and File watched started");
+
 
     }
 
@@ -128,9 +129,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 //        proximityContentManager.stopContentUpdates();
+        deleteFile(FILE_START_SCAN);
+        deleteFile(FileUtils.filename);
         proximityContentManager.destroy();
-
         myFileObserver.stopWatching();
+
         Log.d(TAG, "onDestroy() called and stopped file watch");
     }
 }
