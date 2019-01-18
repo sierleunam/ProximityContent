@@ -11,14 +11,15 @@ import android.view.View;
 import android.widget.Button;
 
 import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
+import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetails;
+import com.estimote.proximitycontent.estimote.ProximityContentManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.estimote.proximitycontent.FileUtils.CheckFile;
+import static com.estimote.proximitycontent.FileUtils.DeleteFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
-import static com.estimote.proximitycontent.MyProximityService.startActionScan;
-import static com.estimote.proximitycontent.MyProximityService.stopActionScan;
+import static com.estimote.proximitycontent.MyApplication.proximityContentManager;
 
 
 //
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String FILE_START_SCAN = "start.scan";
+    private static final String FILE_STOP_SCAN = "stop.scan";
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
@@ -38,6 +40,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main);
+
+
+        btnStart = findViewById(R.id.btnStartId);
+        btnStop = findViewById(R.id.btnStopId);
+        btnSave = findViewById(R.id.buttonSaveId);
+
 
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
@@ -53,21 +61,39 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        btnStart = findViewById(R.id.btnStartId);
-        btnStop = findViewById(R.id.btnStopId);
-        btnSave = findViewById(R.id.buttonSaveId);
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                startActionScan(getApplicationContext());
+                proximityContentManager.setListener(new ProximityContentManager.Listener() {
+                    @Override
+                    public void onContentChanged(Object content) {
+                        String text;
+
+                        if (content != null) {
+                            EstimoteCloudBeaconDetails beaconDetails = (EstimoteCloudBeaconDetails) content;
+                            text = "You're in " + beaconDetails + "'s range!";
+                            MyApplication.beaconName = beaconDetails.getBeaconName();
+                        } else {
+                            text = "No beacons in range.";
+                            MyApplication.beaconName = "UNKNOWN";
+                        }
+                        Log.d(TAG, "onContentChanged() returned: " + text);
+                    }
+                });
+
+                proximityContentManager.startContentUpdates();
             }
         });
 
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                stopActionScan(getApplicationContext());
+                proximityContentManager.stopContentUpdates();
+
+                DeleteFile(FileUtils.filename);
+                DeleteFile(FILE_START_SCAN);
+                DeleteFile(FILE_STOP_SCAN);
             }
         });
 
@@ -82,14 +108,9 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-//                Toast.makeText(getApplicationContext(), file.toString(), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onClick: JSON File Created");
             }
         });
-//
-//        if (CheckFile(FILE_START_SCAN))
-//            btnStart.callOnClick();
-////            DeleteFile(FILE_START_SCAN);
     }
 
     @Override
@@ -103,8 +124,35 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "Starting ProximityContentManager content updates");
         }
-        startActionScan(getApplicationContext());
+
+        proximityContentManager.setListener(new ProximityContentManager.Listener() {
+            @Override
+            public void onContentChanged(Object content) {
+                String text;
+
+                if (content != null) {
+                    EstimoteCloudBeaconDetails beaconDetails = (EstimoteCloudBeaconDetails) content;
+
+                    text = "You're in " + beaconDetails + "'s range!";
+                    MyApplication.beaconName = beaconDetails.getBeaconName();
+
+                } else {
+                    text = "No beacons in range.";
+                    MyApplication.beaconName = "UNKNOWN";
+                }
+                Log.d(TAG, "onContentChanged() returned: " + text);
+            }
+        });
+        proximityContentManager.startContentUpdates();
+
+
         Log.d(TAG, "onResume() called");
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        proximityContentManager.stopContentUpdates();
+        proximityContentManager.destroy();
+    }
 }

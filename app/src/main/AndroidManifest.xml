@@ -8,34 +8,16 @@
 
     <application
         android:name=".MyApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <service
-            android:name=".MyProximityService"
-            android:enabled="true"
-            android:exported="true">
-
-        </service>
-
-        <receiver android:name=".MyProximityReceiver">
-            <intent-filter>
-                <action android:name="com.estimote.proximitycontent.action.START" />
-                <action android:name="com.estimote.proximitycontent.action.STOP" />
-            </intent-filter>
-        </receiver>
-
-        <service
-            android:name=".MyProximityIntentService"
-            android:exported="true" />
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

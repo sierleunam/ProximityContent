@@ -8,9 +8,6 @@ import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetailsFactory;
 import com.estimote.proximitycontent.estimote.ProximityContentManager;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
 
 
 //
@@ -45,7 +42,7 @@ public class MyApplication extends Application {
                                 new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 43764, 47789), //branco
                                 new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 17715, 13079), //verde
                                 new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 31722, 6285),  //roxo
-                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 20640, 6416)), //Azul
+                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 20640, 6416)), //azul
                         new EstimoteCloudBeaconDetailsFactory());
 
 
@@ -60,5 +57,7 @@ public class MyApplication extends Application {
     @Override
     public void onTerminate() {
         super.onTerminate();
+        proximityContentManager.stopContentUpdates();
+        proximityContentManager.destroy();
     }
 }

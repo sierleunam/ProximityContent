@@ -5,12 +5,18 @@ import com.estimote.coresdk.recognition.utils.MacAddress;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class JsonBeacon {
-    public static JSONObject makeJsonObject(String proximityUUID, int major, int minor, MacAddress macAddress, int rssi, double nearestBeaconsDistance) throws JSONException {
+    public static JSONObject makeJsonObject(
+            String proximityUUID,
+            int major,
+            int minor,
+            MacAddress macAddress,
+            int rssi,
+            double nearestBeaconsDistance) {
         JSONObject jsonObject = new JSONObject();
 
         String name = null;
@@ -27,17 +33,21 @@ public class JsonBeacon {
             case 20640:
                 name = "azul";
                 break;
-
         }
 
-        int time = (int) System.currentTimeMillis();
-        Timestamp tsTemp = new Timestamp(time);
-        jsonObject.put("timestamp", tsTemp.toString());
-        jsonObject.put("name", name);
-        jsonObject.put("uuid", proximityUUID);
-        jsonObject.put("macaddress", macAddress.toString());
-        jsonObject.put("rssi", rssi);
-        jsonObject.put("distance", nearestBeaconsDistance);
+        SimpleDateFormat sdf;
+        sdf = new SimpleDateFormat("yyyyMMddmmss", Locale.ENGLISH);
+        String time = sdf.format(new Date());
+        try {
+            jsonObject.put("timestamp", time);
+            jsonObject.put("name", name);
+            jsonObject.put("uuid", proximityUUID);
+            jsonObject.put("macaddress", macAddress.toString());
+            jsonObject.put("rssi", rssi);
+            jsonObject.put("distance", nearestBeaconsDistance);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         return jsonObject;
 
