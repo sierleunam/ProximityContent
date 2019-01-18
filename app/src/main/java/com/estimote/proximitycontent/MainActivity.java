@@ -3,6 +3,8 @@ package com.estimote.proximitycontent;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileObserver;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -11,8 +13,6 @@ import android.view.View;
 import android.widget.Button;
 
 import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
-import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetails;
-import com.estimote.proximitycontent.estimote.ProximityContentManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import static com.estimote.proximitycontent.FileUtils.DeleteFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
 import static com.estimote.proximitycontent.MyApplication.proximityContentManager;
+import static com.estimote.proximitycontent.ProximityContentManagerController.startScan;
+import static com.estimote.proximitycontent.ProximityContentManagerController.stopScan;
 
 
 //
@@ -33,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String FILE_STOP_SCAN = "stop.scan";
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+
+    MyFileObserver myFileObserver = null;
 
     Button btnStart, btnStop, btnSave;
 
@@ -65,31 +69,15 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                proximityContentManager.setListener(new ProximityContentManager.Listener() {
-                    @Override
-                    public void onContentChanged(Object content) {
-                        String text;
+                startScan();
 
-                        if (content != null) {
-                            EstimoteCloudBeaconDetails beaconDetails = (EstimoteCloudBeaconDetails) content;
-                            text = "You're in " + beaconDetails + "'s range!";
-                            MyApplication.beaconName = beaconDetails.getBeaconName();
-                        } else {
-                            text = "No beacons in range.";
-                            MyApplication.beaconName = "UNKNOWN";
-                        }
-                        Log.d(TAG, "onContentChanged() returned: " + text);
-                    }
-                });
-
-                proximityContentManager.startContentUpdates();
             }
         });
 
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                proximityContentManager.stopContentUpdates();
+                stopScan();
 
                 DeleteFile(FileUtils.filename);
                 DeleteFile(FILE_START_SCAN);
@@ -111,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onClick: JSON File Created");
             }
         });
+//        Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
     }
 
     @Override
@@ -125,34 +114,23 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Starting ProximityContentManager content updates");
         }
 
-        proximityContentManager.setListener(new ProximityContentManager.Listener() {
-            @Override
-            public void onContentChanged(Object content) {
-                String text;
 
-                if (content != null) {
-                    EstimoteCloudBeaconDetails beaconDetails = (EstimoteCloudBeaconDetails) content;
+        myFileObserver = new MyFileObserver(
+                Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS).toString(),
+                FileObserver.DELETE);
+        myFileObserver.startWatching();
+        Log.d(TAG, "onResume() called and File watched started");
 
-                    text = "You're in " + beaconDetails + "'s range!";
-                    MyApplication.beaconName = beaconDetails.getBeaconName();
-
-                } else {
-                    text = "No beacons in range.";
-                    MyApplication.beaconName = "UNKNOWN";
-                }
-                Log.d(TAG, "onContentChanged() returned: " + text);
-            }
-        });
-        proximityContentManager.startContentUpdates();
-
-
-        Log.d(TAG, "onResume() called");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        proximityContentManager.stopContentUpdates();
+//        proximityContentManager.stopContentUpdates();
         proximityContentManager.destroy();
+
+        myFileObserver.stopWatching();
+        Log.d(TAG, "onDestroy() called and stopped file watch");
     }
 }
