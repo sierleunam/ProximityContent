@@ -17,14 +17,17 @@ import java.util.List;
 import static com.estimote.coresdk.common.config.EstimoteSDK.getApplicationContext;
 import static com.estimote.coresdk.observation.region.RegionUtils.computeAccuracy;
 import static com.estimote.proximitycontent.FileUtils.CheckFile;
+import static com.estimote.proximitycontent.FileUtils.DeleteFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
 import static com.estimote.proximitycontent.JsonBeacon.makeJsonObject;
 import static com.estimote.proximitycontent.MyProximityService.stopActionScan;
+import static java.lang.Thread.sleep;
 
 public class NearestBeaconManager {
 
     private static final String TAG = "NearestBeaconManager";
     private static final String FILE_STOP_SCAN = "stop.scan";
+    private static final String FILE_START_SCAN = "start.scan";
     private static final BeaconRegion ALL_ESTIMOTE_BEACONS = new BeaconRegion("all Estimote beacons", null, null, null);
 
     private List<BeaconID> beaconIDs;
@@ -75,15 +78,20 @@ public class NearestBeaconManager {
 
     private void checkForNearestBeacon(List<Beacon> allBeacons) {
         List<Beacon> beaconsOfInterest = filterOutBeaconsByIDs(allBeacons, beaconIDs);
-        Beacon nearestBeacon = findNearestBeacon(beaconsOfInterest);
-        if (nearestBeacon != null) {
-            BeaconID nearestBeaconID = BeaconID.fromBeacon(nearestBeacon);
-            if (!nearestBeaconID.equals(currentlyNearestBeaconID) || !firstEventSent) {
-                updateNearestBeacon(nearestBeaconID);
-            }
-        } else if (currentlyNearestBeaconID != null || !firstEventSent) {
-            updateNearestBeacon(null);
-        }
+
+           try {
+               Beacon nearestBeacon = findNearestBeacon(beaconsOfInterest);
+               if (nearestBeacon != null) {
+                   BeaconID nearestBeaconID = BeaconID.fromBeacon(nearestBeacon);
+                   if (!nearestBeaconID.equals(currentlyNearestBeaconID) || !firstEventSent) {
+                       updateNearestBeacon(nearestBeaconID);
+                   }
+               } else if (currentlyNearestBeaconID != null || !firstEventSent) {
+                   updateNearestBeacon(null);
+               }
+           } catch (Exception e)
+           {}
+
     }
 
     private void updateNearestBeacon(BeaconID beaconID) {
@@ -106,7 +114,7 @@ public class NearestBeaconManager {
         return filteredBeacons;
     }
 
-    private static Beacon findNearestBeacon(List<Beacon> beacons) {
+    private static Beacon findNearestBeacon(List<Beacon> beacons) throws JSONException {
         Beacon nearestBeacon = null;
         double nearestBeaconsDistance = -1;
         for (Beacon beacon : beacons) {
@@ -115,27 +123,28 @@ public class NearestBeaconManager {
                 nearestBeacon = beacon;
                 nearestBeaconsDistance = distance;
 
-                try {
+
                     WriteJsonToFile(
                             FileUtils.filename,
                             makeJsonObject(
-                                    MyApplication.beaconName,
                                     String.valueOf(nearestBeacon.getProximityUUID()),
+                                    nearestBeacon.getMajor(),
+                                    nearestBeacon.getMinor(),
                                     nearestBeacon.getMacAddress(),
                                     nearestBeacon.getRssi(), nearestBeaconsDistance));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+
+
+//                DeleteFile(FILE_START_SCAN);
             }
         }
 
 
         Log.d(TAG, "Nearest beacon: " + nearestBeacon + ", distance: " + nearestBeaconsDistance);
 
-        if (CheckFile(FILE_STOP_SCAN)) {
-            stopActionScan(getApplicationContext());
-
-        }
+//        if (CheckFile(FILE_STOP_SCAN)) {
+//            stopActionScan(getApplicationContext());
+//
+//        }
 
         return nearestBeacon;
     }

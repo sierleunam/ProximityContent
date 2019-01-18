@@ -8,6 +8,9 @@ import com.estimote.proximitycontent.estimote.EstimoteCloudBeaconDetailsFactory;
 import com.estimote.proximitycontent.estimote.ProximityContentManager;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 
 //
@@ -18,6 +21,9 @@ public class MyApplication extends Application {
 
     private static final String TAG = "MyApplication";
     public static String beaconName = "UNKNOWN";
+
+
+
     static ProximityContentManager proximityContentManager;
     @Override
     public void onCreate() {
@@ -36,10 +42,10 @@ public class MyApplication extends Application {
                         this,
                         Arrays.asList(
                                 // TODO: replace with UUIDs, majors and minors of your own beacons
-                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 43764, 47789),
-                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 17715, 13079),
-                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 31722, 6285),
-                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 31722, 6285)),
+                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 43764, 47789), //branco
+                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 17715, 13079), //verde
+                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 31722, 6285),  //roxo
+                                new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 20640, 6416)), //Azul
                         new EstimoteCloudBeaconDetailsFactory());
 
 

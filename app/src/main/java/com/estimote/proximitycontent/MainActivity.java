@@ -60,14 +60,14 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActionScan(getApplicationContext());
+//                startActionScan(getApplicationContext());
             }
         });
 
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopActionScan(getApplicationContext());
+//                stopActionScan(getApplicationContext());
             }
         });
 
@@ -86,10 +86,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onClick: JSON File Created");
             }
         });
-
-        if (CheckFile(FILE_START_SCAN))
-            btnStart.callOnClick();
-//            DeleteFile(FILE_START_SCAN);
+//
+//        if (CheckFile(FILE_START_SCAN))
+//            btnStart.callOnClick();
+////            DeleteFile(FILE_START_SCAN);
     }
 
     @Override
@@ -103,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "Starting ProximityContentManager content updates");
         }
+        startActionScan(getApplicationContext());
+        Log.d(TAG, "onResume() called");
     }
 
 }

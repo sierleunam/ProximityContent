@@ -44,7 +44,7 @@ public class MyProximityService extends Service {
 
                 if (content != null) {
                     EstimoteCloudBeaconDetails beaconDetails = (EstimoteCloudBeaconDetails) content;
-                    text = "You're in " + beaconDetails + "'s range!";
+//                    text = "You're in " + beaconDetails + "'s range!";
                     beaconName = beaconDetails.getBeaconName();
                 } else {
                     text = "No beacons in range.";
@@ -54,6 +54,7 @@ public class MyProximityService extends Service {
 
             }
         });
+
         proximityContentManager.startContentUpdates();
     }
 
@@ -66,7 +67,7 @@ public class MyProximityService extends Service {
     public static void stopActionScan(Context context) {
         proximityContentManager.stopContentUpdates();
 
-            DeleteFile(FileUtils.filename);
+        DeleteFile(FileUtils.filename);
         DeleteFile(FILE_START_SCAN);
         DeleteFile(FILE_STOP_SCAN);
 
