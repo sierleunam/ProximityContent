@@ -1,6 +1,9 @@
 package com.estimote.proximitycontent;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.os.Environment;
 
 import com.estimote.coresdk.common.config.EstimoteSDK;
@@ -23,7 +26,7 @@ public class MyApplication extends Application {
     public static final String DOWNLOADS_FOLDER = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOWNLOADS).toString();
     public static final String FILE_START_SCAN = "start.scan";
-    public static final String FILE_STOP_SCAN = "stop.scan";
+    public static final String CHANNEL_ID = "BeaconServiceChannel";
 
 
     static ProximityContentManager proximityContentManager;
@@ -51,6 +54,18 @@ public class MyApplication extends Application {
                         new EstimoteCloudBeaconDetailsFactory());
 
 
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Beacon Service Channel",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
     }
 
     /**

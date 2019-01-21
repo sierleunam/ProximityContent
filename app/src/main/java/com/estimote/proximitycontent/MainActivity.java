@@ -1,9 +1,9 @@
 package com.estimote.proximitycontent;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.FileObserver;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import static com.estimote.proximitycontent.FileUtils.CreateDummyFile;
 import static com.estimote.proximitycontent.FileUtils.DeleteFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
-import static com.estimote.proximitycontent.MyApplication.DOWNLOADS_FOLDER;
 import static com.estimote.proximitycontent.MyApplication.FILE_START_SCAN;
 import static com.estimote.proximitycontent.MyApplication.proximityContentManager;
 
@@ -36,9 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     private static MyFileObserver myFileObserver;
-    private static MyFileObserver myFileObserverDelete;
 
-    Button btnStart, btnStop, btnSave;
+    Button btnStart, btnStop, btnSave, btnStartService, btnStopService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btnStartId);
         btnStop = findViewById(R.id.btnStopId);
         btnSave = findViewById(R.id.buttonSaveId);
+        btnStartService = findViewById(R.id.btnStartServiceId);
+        btnStopService = findViewById(R.id.btnStopService);
 
 
         // Here, thisActivity is the current activity
@@ -116,11 +116,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        myFileObserver = new MyFileObserver(
-                DOWNLOADS_FOLDER,
-                FileObserver.CREATE | FileObserver.DELETE);
-        Log.d(TAG, "onResume: " + DOWNLOADS_FOLDER);
-        myFileObserver.startWatching();
+//        myFileObserver = new MyFileObserver(
+//                DOWNLOADS_FOLDER,
+//                FileObserver.CREATE | FileObserver.DELETE);
+//        Log.d(TAG, "onResume: " + DOWNLOADS_FOLDER);
+//        myFileObserver.startWatching();
 
 
     }
@@ -135,5 +135,18 @@ public class MainActivity extends AppCompatActivity {
         myFileObserver.stopWatching();
 
         Log.d(TAG, "onDestroy() called and stopped file watch");
+    }
+
+    public void startService(View view) {
+        Intent serviceIntent = new Intent(this, MyBeaconService.class);
+        serviceIntent.putExtra("inputExtra", 1);
+        startService(serviceIntent);
+        Log.d(TAG, "startService() called with: view = [" + view + "]");
+    }
+
+    public void stopService(View view) {
+        Intent serviceIntent = new Intent(this, MyBeaconService.class);
+        stopService(serviceIntent);
+        Log.d(TAG, "stopService() called with: view = [" + view + "]");
     }
 }
