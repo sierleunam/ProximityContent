@@ -14,7 +14,8 @@ public class FileUtils {
 
     private static final String TAG = "FileUtils";
     public static String filename = "beacon.json";
-    public static File getPublicDownloadsStorageFile(String fileName) {
+
+    private static File getPublicDownloadsStorageFile(String fileName) {
 
         File file = null;
         if (isExternalStorageWritable()) {
@@ -22,7 +23,8 @@ public class FileUtils {
             file = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS), fileName);
 
-        }
+        } else
+            Log.d(TAG, "getPublicDownloadsStorageFile: Folder not Writable!!");
 
         return file;
     }
@@ -30,7 +32,7 @@ public class FileUtils {
     public static int WriteJsonToFile(String fileName, @NotNull JSONObject obj) {
 
         File file = getPublicDownloadsStorageFile(fileName);
-        FileWriter fw = null;
+        FileWriter fw;
         try {
             fw = new FileWriter(file);
             fw.write(obj.toString());
@@ -46,9 +48,13 @@ public class FileUtils {
 
     }
 
-    public static boolean DeleteFile(String fileName) {
-        File file = getPublicDownloadsStorageFile(fileName);
-        return file.delete();
+    static void deleteFile(String fileName) {
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+        if (file.exists()) {
+            boolean st = file.delete();
+            Log.d(TAG, "deleteFile() called with: fileName = [" + fileName + "], Deleting: " + file.toString());
+        }
+
 
     }
 
@@ -57,10 +63,10 @@ public class FileUtils {
         return file.exists();
     }
 
-    public static void CreateDummyFile(String fileName) {
+    static void CreateDummyFile(String fileName) {
         File file = getPublicDownloadsStorageFile(fileName);
         try {
-            file.createNewFile();
+            boolean st = file.createNewFile();
             Log.d(TAG, "CreateDummyFile: " + file.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();

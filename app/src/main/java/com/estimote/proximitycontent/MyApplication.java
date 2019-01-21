@@ -77,7 +77,7 @@ public class MyApplication extends Application {
     @Override
     public void onTerminate() {
         super.onTerminate();
-        proximityContentManager.stopContentUpdates();
-        proximityContentManager.destroy();
+//        proximityContentManager.stopContentUpdates();
+//        proximityContentManager.destroy();
     }
 }

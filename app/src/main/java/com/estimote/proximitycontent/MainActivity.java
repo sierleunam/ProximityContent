@@ -17,10 +17,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.estimote.proximitycontent.FileUtils.CreateDummyFile;
-import static com.estimote.proximitycontent.FileUtils.DeleteFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
 import static com.estimote.proximitycontent.MyApplication.FILE_START_SCAN;
-import static com.estimote.proximitycontent.MyApplication.proximityContentManager;
 
 
 //
@@ -80,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                stopScan();
 
-                DeleteFile(FileUtils.filename);
-                DeleteFile(FILE_START_SCAN);
+                FileUtils.deleteFile(FileUtils.filename);
+                FileUtils.deleteFile(FILE_START_SCAN);
 
             }
         });
@@ -129,17 +127,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 //        proximityContentManager.stopContentUpdates();
-        deleteFile(FILE_START_SCAN);
-        deleteFile(FileUtils.filename);
-        proximityContentManager.destroy();
-        myFileObserver.stopWatching();
 
-        Log.d(TAG, "onDestroy() called and stopped file watch");
+
     }
 
     public void startService(View view) {
         Intent serviceIntent = new Intent(this, MyBeaconService.class);
-        serviceIntent.putExtra("inputExtra", 1);
+//        serviceIntent.putExtra("inputExtra", 1);
         startService(serviceIntent);
         Log.d(TAG, "startService() called with: view = [" + view + "]");
     }
@@ -147,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
     public void stopService(View view) {
         Intent serviceIntent = new Intent(this, MyBeaconService.class);
         stopService(serviceIntent);
+        FileUtils.deleteFile(FILE_START_SCAN);
+        FileUtils.deleteFile(FileUtils.filename);
         Log.d(TAG, "stopService() called with: view = [" + view + "]");
     }
 }

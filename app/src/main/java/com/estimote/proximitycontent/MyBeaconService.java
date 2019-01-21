@@ -13,6 +13,7 @@ import android.util.Log;
 
 import static com.estimote.proximitycontent.MyApplication.CHANNEL_ID;
 import static com.estimote.proximitycontent.MyApplication.DOWNLOADS_FOLDER;
+import static com.estimote.proximitycontent.MyApplication.FILE_START_SCAN;
 
 public class MyBeaconService extends Service {
     private static final String TAG = "MyBeaconService";
@@ -34,7 +35,7 @@ public class MyBeaconService extends Service {
                 0, notificationIntent, 0);
 
         notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("BeaconService")
+                .setContentTitle("Beacon Service")
                 .setContentText("Scanning for Beacons...")
                 .setSmallIcon(R.drawable.ic_bookmark_border_black_24dp)
                 .setContentIntent(pendingIntent).build();
@@ -75,7 +76,9 @@ public class MyBeaconService extends Service {
         myFileObserver = new MyFileObserver(
                 DOWNLOADS_FOLDER,
                 FileObserver.CREATE | FileObserver.DELETE);
-        Log.d(TAG, "onResume: " + DOWNLOADS_FOLDER);
+        Log.d(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
+        FileUtils.deleteFile(FILE_START_SCAN);
+        FileUtils.deleteFile(FileUtils.filename);
         myFileObserver.startWatching();
         return START_STICKY;
     }
@@ -89,6 +92,11 @@ public class MyBeaconService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        myFileObserver.stopWatching();
+        FileUtils.deleteFile(FILE_START_SCAN);
+        FileUtils.deleteFile(FileUtils.filename);
+        ProximityContentManagerController.stopScan();
+//        ProximityContentManagerController.destroyScan();
         Log.d(TAG, "onDestroy() called");
     }
 
