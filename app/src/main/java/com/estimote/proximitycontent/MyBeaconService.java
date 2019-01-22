@@ -11,12 +11,11 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import static com.estimote.proximitycontent.MyApplication.CHANNEL_ID;
-import static com.estimote.proximitycontent.MyApplication.DOWNLOADS_FOLDER;
-import static com.estimote.proximitycontent.MyApplication.FILE_START_SCAN;
-
 public class MyBeaconService extends Service {
     private static final String TAG = "MyBeaconService";
+
+    private static final String ACTION_STOP_SERVICE = "com.estimote.proximitycontent.STOP_SERVICE";
+    private static final String ACTION_START_SERVICE = "com.estimote.proximitycontent.START_SERVICE";
     public Notification notification;
     private MyFileObserver myFileObserver;
 
@@ -29,16 +28,7 @@ public class MyBeaconService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Intent notificationIntent = new Intent(this, MainActivity.class);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
-
-        notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Beacon Service")
-                .setContentText("Scanning for Beacons...")
-                .setSmallIcon(R.drawable.ic_bookmark_border_black_24dp)
-                .setContentIntent(pendingIntent).build();
     }
 
     /**
@@ -72,12 +62,33 @@ public class MyBeaconService extends Service {
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(1, notification);
-        myFileObserver = new MyFileObserver(
-                DOWNLOADS_FOLDER,
-                FileObserver.CREATE | FileObserver.DELETE);
         Log.d(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
-        FileUtils.deleteFile(FILE_START_SCAN);
+
+        if (ACTION_STOP_SERVICE.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: Stop Service");
+            stopSelf();
+        }
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                0, notificationIntent, 0);
+
+        Intent stopSelf = new Intent(this, MyBeaconService.class).setAction(ACTION_STOP_SERVICE);
+        PendingIntent pStopSelf = PendingIntent.getService(this, 0, stopSelf, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        notification = new NotificationCompat.Builder(this, MyApplication.CHANNEL_ID)
+                .setContentTitle("Beacon Service")
+                .setContentText("Scanning for Beacons...")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .addAction(R.drawable.ic_stop_black_24dp, "Stop", pStopSelf)
+                .setContentIntent(pendingIntent).build();
+        startForeground(1, notification);
+
+        myFileObserver = new MyFileObserver(
+                MyApplication.DOWNLOADS_FOLDER,
+                FileObserver.CREATE | FileObserver.DELETE);
+        FileUtils.deleteFile(MyApplication.FILE_START_SCAN);
         FileUtils.deleteFile(FileUtils.filename);
         myFileObserver.startWatching();
         return START_STICKY;
@@ -93,7 +104,7 @@ public class MyBeaconService extends Service {
     public void onDestroy() {
         super.onDestroy();
         myFileObserver.stopWatching();
-        FileUtils.deleteFile(FILE_START_SCAN);
+        FileUtils.deleteFile(MyApplication.FILE_START_SCAN);
         FileUtils.deleteFile(FileUtils.filename);
         ProximityContentManagerController.stopScan();
 //        ProximityContentManagerController.destroyScan();

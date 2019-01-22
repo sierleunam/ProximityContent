@@ -127,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 //        proximityContentManager.stopContentUpdates();
-
-
     }
 
     public void startService(View view) {
