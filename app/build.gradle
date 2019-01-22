@@ -10,6 +10,8 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+        maxSdkVersion 28
+
     }
     buildTypes {
         release {
@@ -17,16 +19,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    signingConfigs {
+        release {
+            storeFile file('C:\\Android\\Signing\\DebugKeystore.jks')
+            storePassword System.getenv('rog3ryo')
+            keyAlias = 'keyDebug'
+            keyPassword System.getenv('rog3ryo')
+        }
+
+    }
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            def appName = "EstimoteHelper"
-            outputFileName = appName+".apk"
+            def appName = "BeaconFinder"
+            outputFileName = appName + ".apk"
         }
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:support-v4:28.0.0'
     testImplementation 'junit:junit:4.13-beta-1'
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'

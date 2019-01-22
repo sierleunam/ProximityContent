@@ -23,9 +23,9 @@ public class MyApplication extends Application {
     private static final String TAG = "MyApplication";
     public static String beaconName = "UNKNOWN";
 
-    public static final String DOWNLOADS_FOLDER = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOWNLOADS).toString();
+    public static final String DOWNLOADS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
     public static final String FILE_START_SCAN = "start.scan";
+    public static final String FILE_STOP_SCAN = "stop.scan";
     public static final String CHANNEL_ID = "BeaconServiceChannel";
 
 
@@ -63,6 +63,9 @@ public class MyApplication extends Application {
                     CHANNEL_ID,
                     "Beacon Service Channel",
                     NotificationManager.IMPORTANCE_DEFAULT);
+            serviceChannel.enableVibration(false);
+            serviceChannel.enableLights(false);
+            serviceChannel.setSound(null, null);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
         }

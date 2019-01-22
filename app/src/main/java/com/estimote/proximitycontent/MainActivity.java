@@ -18,8 +18,6 @@ import org.json.JSONObject;
 
 import static com.estimote.proximitycontent.FileUtils.CreateDummyFile;
 import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
-import static com.estimote.proximitycontent.MyApplication.FILE_START_SCAN;
-
 
 //
 // Running into any issues? Drop us an email to: contact@estimote.com
@@ -28,11 +26,7 @@ import static com.estimote.proximitycontent.MyApplication.FILE_START_SCAN;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActiviy";
-
-
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
-
-    private static MyFileObserver myFileObserver;
 
     Button btnStart, btnStop, btnSave, btnStartService, btnStopService;
 
@@ -40,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main);
-
 
         btnStart = findViewById(R.id.btnStartId);
         btnStop = findViewById(R.id.btnStopId);
@@ -68,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 //                startScan();
-                CreateDummyFile(FILE_START_SCAN);
+                CreateDummyFile(MyApplication.FILE_START_SCAN);
 
             }
         });
@@ -76,10 +69,8 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                stopScan();
-
                 FileUtils.deleteFile(FileUtils.filename);
-                FileUtils.deleteFile(FILE_START_SCAN);
+                FileUtils.deleteFile(MyApplication.FILE_START_SCAN);
 
             }
         });
@@ -87,18 +78,27 @@ public class MainActivity extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-                try {
-                    int obj = WriteJsonToFile("beacon.json", new JSONObject("{\"title\":\"Titulo\"}"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (permissionCheck == 1) {
+                    try {
+                        int obj = WriteJsonToFile("beacon.json", new JSONObject("{\"title\":\"Titulo\"}"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, "onClick: JSON File Created");
                 }
-                Log.d(TAG, "onClick: JSON File Created");
             }
         });
-//        Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
+//        Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState +
+        btnStartService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent serviceIntent = new Intent(MainActivity.this, MyBeaconService.class);
+//        serviceIntent.putExtra("inputExtra", 1);
+                startService(serviceIntent);
+                Log.d(TAG, "onClick() called with: v = [" + v + "]");
+            }
+        });
     }
 
     @Override
@@ -112,34 +112,22 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "Starting ProximityContentManager content updates");
         }
-
-
-//        myFileObserver = new MyFileObserver(
-//                DOWNLOADS_FOLDER,
-//                FileObserver.CREATE | FileObserver.DELETE);
-//        Log.d(TAG, "onResume: " + DOWNLOADS_FOLDER);
-//        myFileObserver.startWatching();
-
-
+        btnStartService.callOnClick();
+        finish();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        proximityContentManager.stopContentUpdates();
     }
 
     public void startService(View view) {
-        Intent serviceIntent = new Intent(this, MyBeaconService.class);
-//        serviceIntent.putExtra("inputExtra", 1);
-        startService(serviceIntent);
-        Log.d(TAG, "startService() called with: view = [" + view + "]");
     }
 
     public void stopService(View view) {
         Intent serviceIntent = new Intent(this, MyBeaconService.class);
         stopService(serviceIntent);
-        FileUtils.deleteFile(FILE_START_SCAN);
+        FileUtils.deleteFile(MyApplication.FILE_START_SCAN);
         FileUtils.deleteFile(FileUtils.filename);
         Log.d(TAG, "stopService() called with: view = [" + view + "]");
     }
