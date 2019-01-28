@@ -9,9 +9,12 @@ import com.estimote.proximitycontent.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.estimote.coresdk.observation.region.RegionUtils.computeAccuracy;
-import static com.estimote.proximitycontent.FileUtils.WriteJsonToFile;
+import static com.estimote.proximitycontent.FileUtils.listfilename;
+import static com.estimote.proximitycontent.FileUtils.writeJsonToFile;
+import static com.estimote.proximitycontent.JsonBeacon.makeJsonArray;
 import static com.estimote.proximitycontent.JsonBeacon.makeJsonObject;
 
 class NearestBeaconManager {
@@ -50,7 +53,7 @@ class NearestBeaconManager {
                 nearestBeaconsDistance = distance;
 
 
-                    WriteJsonToFile(
+                writeJsonToFile(
                             FileUtils.filename,
                             makeJsonObject(
                                     String.valueOf(nearestBeacon.getProximityUUID()),
@@ -59,6 +62,7 @@ class NearestBeaconManager {
                                     nearestBeacon.getMacAddress(),
                                     nearestBeacon.getRssi(), nearestBeaconsDistance));
             }
+
         }
 
 //        Log.d(TAG, "Nearest beacon: " + nearestBeacon + ", distance: " + nearestBeaconsDistance);
@@ -72,13 +76,14 @@ class NearestBeaconManager {
 
     private static List<Beacon> filterOutBeaconsByIDs(List<Beacon> beacons, List<BeaconID> beaconIDs) {
         List<Beacon> filteredBeacons = new ArrayList<>();
-        for (Beacon beacon : beacons) {
-            BeaconID beaconID = BeaconID.fromBeacon(beacon);
-            if (beaconIDs.contains(beaconID)) {
-                filteredBeacons.add(beacon);
+        if (!beacons.isEmpty())
+            for (Beacon beacon : beacons) {
+                BeaconID beaconID = BeaconID.fromBeacon(beacon);
+                if (beaconIDs.contains(beaconID)) {
+                    filteredBeacons.add(beacon);
+                }
             }
-        }
-//        Log.d(TAG, "filterOutBeaconsByIDs: " + filteredBeacons);
+        writeJsonToFile(listfilename, Objects.requireNonNull(makeJsonArray(filteredBeacons)));
         return filteredBeacons;
     }
 
@@ -113,8 +118,6 @@ class NearestBeaconManager {
 
     private void checkForNearestBeacon(List<Beacon> allBeacons) {
         List<Beacon> beaconsOfInterest = filterOutBeaconsByIDs(allBeacons, beaconIDs);
-
-
         Beacon nearestBeacon = findNearestBeacon(beaconsOfInterest);
         if (nearestBeacon != null) {
             BeaconID nearestBeaconID = BeaconID.fromBeacon(nearestBeacon);

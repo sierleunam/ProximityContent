@@ -14,14 +14,14 @@ public class FileUtils {
 
     private static final String TAG = "FileUtils";
     public static String filename = "beacon.json";
+    public static String listfilename = "beacons.json";
 
-    private static File getPublicDownloadsStorageFile(String fileName) {
+    public static File getPublicDownloadsStorageFile(String fileName) {
 
         File file = null;
         if (isExternalStorageWritable()) {
             // Get the directory for the user's public downloads directory.
-            file = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), fileName);
+            file = new File(MyApplication.DOWNLOADS_FOLDER, fileName);
 
         } else
             Log.d(TAG, "getPublicDownloadsStorageFile: Folder not Writable!!");
@@ -29,14 +29,14 @@ public class FileUtils {
         return file;
     }
 
-    public static int WriteJsonToFile(String fileName, @NotNull JSONObject obj) {
+    public static int writeJsonToFile(String fileName, @NotNull JSONObject obj) {
 
         File file = getPublicDownloadsStorageFile(fileName);
         FileWriter fw;
         try {
             fw = new FileWriter(file);
             fw.write(obj.toString());
-            Log.d(TAG, "WriteJsonToFile: " + obj.toString());
+//            Log.d(TAG, "writeTextToFile: " + obj.toString());
             fw.flush();
             fw.close();
         } catch (IOException e) {
@@ -48,11 +48,27 @@ public class FileUtils {
 
     }
 
-    static void deleteFile(String fileName) {
+    static void writeTextToFile(@NotNull String text) {
+
+        File file = getPublicDownloadsStorageFile(MyApplication.FILE_AUDIO_PLAY);
+        FileWriter fw;
+        try {
+            fw = new FileWriter(file);
+            fw.write(text);
+//            Log.d(TAG, "writeJsonToFile: " + text);
+            fw.flush();
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteFile(String fileName) {
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
         if (file.exists()) {
             boolean st = file.delete();
-            Log.d(TAG, "deleteFile() called with: fileName = [" + fileName + "], Deleting: " + file.toString());
+            if (st)
+                Log.d(TAG, "deleteFile() called with: fileName = [" + fileName + "], Deleting: " + file.toString());
         }
 
 
@@ -63,11 +79,11 @@ public class FileUtils {
         return file.exists();
     }
 
-    static void CreateDummyFile(String fileName) {
-        File file = getPublicDownloadsStorageFile(fileName);
+    static void CreateDummyFile() {
+        File file = getPublicDownloadsStorageFile(MyApplication.FILE_START_SCAN);
         try {
             boolean st = file.createNewFile();
-            Log.d(TAG, "CreateDummyFile: " + file.getAbsolutePath());
+            if (st) Log.d(TAG, "CreateDummyFile: " + file.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }

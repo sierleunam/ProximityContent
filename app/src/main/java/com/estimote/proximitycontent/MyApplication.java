@@ -24,6 +24,7 @@ public class MyApplication extends Application {
     public static String beaconName = "UNKNOWN";
 
     public static final String DOWNLOADS_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+    public static final String FILE_AUDIO_PLAY = "audio.play";
     public static final String FILE_START_SCAN = "start.scan";
     public static final String FILE_STOP_SCAN = "stop.scan";
     public static final String CHANNEL_ID = "BeaconServiceChannel";

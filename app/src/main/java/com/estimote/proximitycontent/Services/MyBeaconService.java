@@ -1,4 +1,4 @@
-package com.estimote.proximitycontent;
+package com.estimote.proximitycontent.Services;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -8,6 +8,12 @@ import android.os.FileObserver;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.estimote.proximitycontent.Activity2;
+import com.estimote.proximitycontent.FileUtils;
+import com.estimote.proximitycontent.MyApplication;
+import com.estimote.proximitycontent.ProximityContentManagerController;
+import com.estimote.proximitycontent.R;
 
 public class MyBeaconService extends Service {
     private static final String TAG = "MyBeaconService";
@@ -38,7 +44,7 @@ public class MyBeaconService extends Service {
             stopSelf();
         }
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, Activity2.class);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
@@ -46,19 +52,23 @@ public class MyBeaconService extends Service {
         Intent stopSelf = new Intent(this, MyBeaconService.class).setAction(ACTION_STOP_SERVICE);
         PendingIntent pStopSelf = PendingIntent.getService(this, 0, stopSelf, PendingIntent.FLAG_CANCEL_CURRENT);
 
+
         notification = new NotificationCompat.Builder(this, MyApplication.CHANNEL_ID)
                 .setContentTitle("Beacon Service")
                 .setContentText("Scanning for Beacons...")
                 .setSmallIcon(R.drawable.ic_stat_beacon_custom)
                 .setAutoCancel(true)
                 .addAction(R.drawable.ic_stop_black_24dp, "Stop", pStopSelf)
-                /*.setContentIntent(pendingIntent)*/
+                .setContentIntent(pendingIntent)
                 .build();
         startForeground(1, notification);
 
-        myFileObserver = new MyFileObserver(MyApplication.DOWNLOADS_FOLDER, FileObserver.CREATE | FileObserver.DELETE);
+        myFileObserver = new MyFileObserver(MyApplication.DOWNLOADS_FOLDER, FileObserver.CREATE | FileObserver.DELETE | FileObserver.MODIFY);
+
+        //clean observed files
         FileUtils.deleteFile(MyApplication.FILE_START_SCAN);
         FileUtils.deleteFile(FileUtils.filename);
+        FileUtils.deleteFile(FileUtils.listfilename);
         myFileObserver.startWatching();
         return START_STICKY;
     }
@@ -75,6 +85,7 @@ public class MyBeaconService extends Service {
         myFileObserver.stopWatching();
         FileUtils.deleteFile(MyApplication.FILE_START_SCAN);
         FileUtils.deleteFile(FileUtils.filename);
+        FileUtils.deleteFile(FileUtils.listfilename);
         ProximityContentManagerController.stopScan();
 //        ProximityContentManagerController.destroyScan();
         Log.d(TAG, "onDestroy() called");
