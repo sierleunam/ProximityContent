@@ -1,10 +1,8 @@
 package com.estimote.proximitycontent.Services;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -17,6 +15,7 @@ public class MyAudioService extends Service {
     public final static String ACTION_PLAY_AUDIO = "com.estimote.proximitycontent.PLAY_AUDIO";
     public final static String ACTION_STOP_AUDIO = "com.estimote.proximitycontent.STOP_AUDIO";
     public final static String FILENAME_EXTRA = "filename";
+    private static String AUDIO_FILE = "";
     private static final String TAG = "MyAudioService";
     MediaPlayer mp = new MediaPlayer();
 
@@ -33,59 +32,55 @@ public class MyAudioService extends Service {
         Log.d(TAG, "onCreate: ");
     }
 
-    /**
-     * Called by the system every time a client explicitly starts the service by calling
-     * {@link Context#startService}, providing the arguments it supplied and a
-     * unique integer token representing the start request.  Do not call this method directly.
-     *
-     * <p>For backwards compatibility, the default implementation calls
-     * {@link #onStart} and returns either {@link #START_STICKY}
-     * or {@link #START_STICKY_COMPATIBILITY}.
-     *
-     * <p class="caution">Note that the system calls this on your
-     * service's main thread.  A service's main thread is the same
-     * thread where UI operations take place for Activities running in the
-     * same process.  You should always avoid stalling the main
-     * thread's event loop.  When doing long-running operations,
-     * network calls, or heavy disk I/O, you should kick off a new
-     * thread, or use {@link AsyncTask}.</p>
-     *
-     * @param intent  The Intent supplied to {@link Context#startService},
-     *                as given.  This may be null if the service is being restarted after
-     *                its process has gone away, and it had previously returned anything
-     *                except {@link #START_STICKY_COMPATIBILITY}.
-     * @param flags   Additional data about this start request.
-     * @param startId A unique integer representing this specific request to
-     *                start.  Use with {@link #stopSelfResult(int)}.
-     * @return The return value indicates what semantics the system should
-     * use for the service's current started state.  It may be one of the
-     * constants associated with the {@link #START_CONTINUATION_MASK} bits.
-     * @see #stopSelfResult(int)
-     */
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String filename = null;
+        String filename = "";
         if (ACTION_PLAY_AUDIO.equals(intent.getAction()) /*&& startId <2*/) {
             filename = intent.getStringExtra(FILENAME_EXTRA);
             filename = FileUtils.getPublicDownloadsStorageFile(filename).toString();
             try {
-                mp.reset();
-                mp.setDataSource(filename);
-                mp.prepare();
-                mp.start();
-                Log.d(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
-            } catch (IOException | IllegalStateException e) {
+
+                if (AUDIO_FILE.isEmpty() || !AUDIO_FILE.equals(filename)) {
+                    AUDIO_FILE = filename;
+
+                    mp.reset();
+                    mp.setDataSource(filename);
+                    mp.prepare();
+                    mp.start();
+                    Log.d(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
+                }
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
 
         } else if (ACTION_STOP_AUDIO.equals(intent.getAction())) {
-            mp.stop();
-            stopSelf();
+            if (mp != null && mp.isPlaying()) {
+                MediaPlayer.TrackInfo[] ti = mp.getTrackInfo();
+                Log.d(TAG, "onStartCommand: ACTION_STOP_AUDIO");
+                AUDIO_FILE = "";
+                mp.stop();
+            }
         }
         Log.d(TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "], Extra = [" + filename + "]");
+
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                Log.d(TAG, "onCompletion() called with: mp = [" + mp + "]");
+                AUDIO_FILE = "";
+                mp.reset();
+                mp.release();
+
+                stopSelf();
+            }
+        });
+
         return START_NOT_STICKY;
     }
+
 
     /**
      * Called by the system to notify a Service that it is no longer used and is being removed.  The

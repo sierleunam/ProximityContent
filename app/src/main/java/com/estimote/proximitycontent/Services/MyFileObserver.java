@@ -39,9 +39,9 @@ public class MyFileObserver extends FileObserver {
             if (filename.equals(FILE_START_SCAN)) {
                 switch (event) {
                     case FileObserver.MODIFY:
-                    case FileObserver.ACCESS:
+                        /*case FileObserver.ACCESS:*/
                     case FileObserver.CREATE:
-                        Log.d(TAG, "onEvent: Created/Modified: " + path);
+                        Log.d(TAG, "onEvent: Created/Accessed/Modified: " + path);
                         ProximityContentManagerController.startScan();
                         break;
                     case FileObserver.DELETE:
@@ -55,17 +55,17 @@ public class MyFileObserver extends FileObserver {
                         Log.d(TAG, "onEvent() called with: event = [" + event + "], path = [" + path + "]");
 
                 }
-            } else if (filename.equals(FILE_AUDIO_PLAY))
+            } else if (filename.equals(FILE_AUDIO_PLAY)) {
                 switch (event) {
                     case FileObserver.MODIFY:
-                        Log.d(TAG, "onEvent: Modified: " + path);
-                    case FileObserver.ACCESS:
+                        /*case FileObserver.ACCESS:*/
                     case FileObserver.CREATE:
-                        Log.d(TAG, "onEvent: Created: " + path);
+                        Log.d(TAG, "onEvent: Created/Modified: " + path);
                         FileInputStream is = null;
                         BufferedReader reader;
-                        final File file = getPublicDownloadsStorageFile(filename);
 
+                        //Read file content (contains the filename to be played)
+                        final File file = getPublicDownloadsStorageFile(filename);
                         if (file.exists()) {
                             try {
                                 is = new FileInputStream(file);
@@ -80,31 +80,30 @@ public class MyFileObserver extends FileObserver {
                                 e.printStackTrace();
                             }
                             if (line != null) {
-
                                 Log.d(TAG, "onEvent() filename = [" + line + "]");
+
+                                //prepare intent to be sent
                                 Intent audioIntent = new Intent(getApplicationContext(), MyAudioService.class);
                                 audioIntent.putExtra(FILENAME_EXTRA, line);
                                 audioIntent.setAction(MyAudioService.ACTION_PLAY_AUDIO);
-                                PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, audioIntent, 0);
+
+                                PendingIntent pendingIntent = PendingIntent
+                                        .getService(getApplicationContext(), 0, audioIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                                 try {
-                                    pendingIntent.send(getApplicationContext(), 0, audioIntent);
-                                    Log.d(TAG, "pending Intent = [" + pendingIntent.toString() + "]");
-//                                    pendingIntent.send();
+                                    pendingIntent.send();
                                 } catch (PendingIntent.CanceledException e) {
                                     e.printStackTrace();
                                 }
-
-
+                                Log.d(TAG, "pending Intent = [" + pendingIntent.toString() + "]");
                             }
                         }
-
                         break;
                     case FileObserver.DELETE:
+                        //Stop playback
                         Intent audioIntent = new Intent(getApplicationContext(), MyAudioService.class);
-
                         audioIntent.setAction(MyAudioService.ACTION_STOP_AUDIO);
-                        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, audioIntent, 0);
+                        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, audioIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                         try {
                             pendingIntent.send();
@@ -117,8 +116,8 @@ public class MyFileObserver extends FileObserver {
                         break;
                     default:
                         Log.d(TAG, "onEvent() called with: event = [" + event + "], path = [" + path + "]");
-
                 }
+            }
         }
     }
 }
