@@ -18,8 +18,8 @@ The data is presented in json format.
 	{
 		"timestamp":"201903124015",
 		"name":"verde",
-		"uuid":"b9407f30-f5f8-466e-aff9-25556b57fe6d",
-		"macaddress":"[E0:D1:2B:E5:32:E5]",
+		"uuid":"<uuid>",
+		"macaddress":"[<MAC Address>]",
 		"rssi":-92,
 		"distance":17.00011174830764
 	}
@@ -27,16 +27,16 @@ Also, another file called 'beacons.json' is create with a JSON array containing 
 ##### example:
 	{ 
 		"list" :[
-			{
-				"timestamp":"201903124015",
-				"name":"verde",
-				"uuid":"b9407f30-f5f8-466e-aff9-25556b57fe6d",
-				"macaddress":"[E0:D1:2B:E5:32:E5]",
-				"rssi":-92,
-				"distance":17.00011174830764
-			},
+				{
+					"timestamp":"201903124015",
+					"name":"verde",
+					"uuid":"<uuid>",
+					"macaddress":"[<MAC Address>]",
+					"rssi":-92,
+					"distance":17.00011174830764
+				},
 			 ...
-		 ]
+			 ]
 	}
 
 
