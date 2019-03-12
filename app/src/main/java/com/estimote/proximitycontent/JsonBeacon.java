@@ -47,7 +47,6 @@ public class JsonBeacon {
         JSONArray jsonArray = new JSONArray();
         SimpleDateFormat sdf;
         sdf = new SimpleDateFormat("yyyyMMddmmss", Locale.ENGLISH);
-        String time = sdf.format(new Date());
         for (Beacon beacon : beacons) {
             JSONObject jsonObject = new JSONObject();
 

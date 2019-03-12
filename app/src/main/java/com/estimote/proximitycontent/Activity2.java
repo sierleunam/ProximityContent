@@ -19,8 +19,6 @@ import static com.estimote.proximitycontent.FileUtils.filename;
 import static com.estimote.proximitycontent.FileUtils.listfilename;
 import static com.estimote.proximitycontent.FileUtils.writeJsonToFile;
 import static com.estimote.proximitycontent.FileUtils.writeTextToFile;
-//import static com.estimote.proximitycontent.FileUtils.CreateDummyFile;
-//import static com.estimote.proximitycontent.FileUtils.writeJsonToFile;
 
 public class Activity2 extends AppCompatActivity {
 
@@ -44,7 +42,6 @@ public class Activity2 extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                startScan();
                 CreateDummyFile();
 
             }
@@ -77,11 +74,6 @@ public class Activity2 extends AppCompatActivity {
         btnPlayBranco.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent audioIntent = new Intent(Activity2.this, MyAudioService.class);
-//                audioIntent.putExtra(FILENAME_EXTRA,"start.branco.wav");
-//                audioIntent.setAction(MyAudioService.ACTION_PLAY_AUDIO);
-//                startService(audioIntent);
-
                 writeTextToFile("start.branco.wav");
             }
         });
@@ -89,11 +81,6 @@ public class Activity2 extends AppCompatActivity {
         btnPlayVerde.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent audioIntent = new Intent(Activity2.this, MyAudioService.class);
-//                audioIntent.putExtra(FILENAME_EXTRA,"start.verde.wav");
-//                audioIntent.setAction(MyAudioService.ACTION_PLAY_AUDIO);
-//                startService(audioIntent);
-
                 writeTextToFile("start.verde.wav");
             }
         });
@@ -101,9 +88,6 @@ public class Activity2 extends AppCompatActivity {
         btnStopAudio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent audioIntent = new Intent(Activity2.this, MyAudioService.class);
-//                audioIntent.setAction(MyAudioService.ACTION_STOP_AUDIO);
-//                startService(audioIntent);
                 FileUtils.deleteFile(MyApplication.FILE_AUDIO_PLAY);
             }
         });

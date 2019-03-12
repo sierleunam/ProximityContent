@@ -59,7 +59,7 @@ public class MyBeaconService extends Service {
                 .setSmallIcon(R.drawable.ic_stat_beacon_custom)
                 .setAutoCancel(true)
                 .addAction(R.drawable.ic_stop_black_24dp, "Stop", pStopSelf)
-                .setContentIntent(pendingIntent)
+//                .setContentIntent(pendingIntent)
                 .build();
         startForeground(1, notification);
 

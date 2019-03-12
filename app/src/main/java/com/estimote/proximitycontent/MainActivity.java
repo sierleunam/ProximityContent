@@ -28,13 +28,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main);
 
-//        btnStart = findViewById(R.id.btnStartId);
-//        btnStop = findViewById(R.id.btnStopId);
-//        btnSave = findViewById(R.id.buttonSaveId);
-//        btnStartService = findViewById(R.id.btnStartServiceId);
-//        btnStopService = findViewById(R.id.btnStopService);
-
-
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -48,8 +41,6 @@ public class MainActivity extends AppCompatActivity {
                         MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
             }
         }
-
-
     }
 
     @Override
